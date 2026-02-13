@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyMapper AI - UT Installation Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { 'ios-blue': '#007AFF', 'neon-green': '#00FF9D', 'neon-cyan': '#00F0FF', 'neon-orange': '#FF8800', 'neon-red': '#FF3355' } } } }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='12' fill='none' stroke='%2300F0FF' stroke-width='1'/%3E%3Ccircle cx='14' cy='14' r='3' fill='%2300F0FF'/%3E%3C/svg%3E") 14 14, auto
+        }
+
+        .glass {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px)
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            position: relative;
+            flex-shrink: 0
+        }
+
+        .phone-reflection {
+            position: absolute;
+            inset: 0;
+            border-radius: 36px;
+            pointer-events: none;
+            z-index: 60;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, transparent 40%, transparent 60%, rgba(255, 255, 255, 0.03) 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.3)
+        }
+
+        .ar-bg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                opacity: .5
+            }
+
+            50% {
+                opacity: 1
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite
+        }
+
+        @keyframes float-up {
+            0% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-6px)
+            }
+
+            100% {
+                transform: translateY(0)
+            }
+        }
+
+        .float-up {
+            animation: float-up 3s ease-in-out infinite
+        }
+
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .fade-in {
+            animation: fade-in .4s ease
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0
+        }
+
+        .nav-item {
+            cursor: pointer;
+            transition: all .2s
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, .04)
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(0, 240, 255, .08), transparent);
+            border-left-color: #00F0FF;
+            color: #00F0FF
+        }
+
+        .ctrl-btn {
+            transition: all .15s
+        }
+
+        .ctrl-btn:hover {
+            background: rgba(0, 240, 255, .1);
+            color: #fff
+        }
+
+        .ctrl-btn.on {
+            background: #00F0FF;
+            color: #000;
+            border-color: #00F0FF;
+            font-weight: 700
+        }
+
+        .screen-inner {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch
+        }
+
+        .screen-inner::-webkit-scrollbar {
+            width: 0
+        }
+    </style>
+</head>
+
+<body class="bg-[#050510] text-white h-screen flex overflow-hidden">
+    <nav class="sidebar bg-[rgba(8,12,20,0.97)] border-r border-white/10 flex flex-col overflow-y-auto">
+        <div
+            class="px-6 py-5 text-[17px] font-bold text-neon-cyan border-b border-white/10 flex items-center gap-2.5 sticky top-0 bg-[rgba(8,12,20,0.97)] z-10">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <path
+                    d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+            SkyMapper AI
+        </div>
+        <div class="px-6 pt-5 pb-1.5 text-[11px] uppercase text-[#8899BB] tracking-[1.5px] font-semibold">App Screens
+        </div>
+        <div class="nav-item active px-6 py-2.5 border-l-[3px] border-transparent text-[13px]" onclick="go(1)">01. 初始化
+            (Init)</div>
+        <div class="nav-item px-6 py-2.5 border-l-[3px] border-transparent text-gray-400 text-[13px]" onclick="go(2)">
+            02. 儀表板 (Dash)</div>
+        <div class="nav-item px-6 py-2.5 border-l-[3px] border-transparent text-gray-400 text-[13px]" onclick="go(3)">
+            03. AR 掃描 (Scan)</div>
+        <div class="nav-item px-6 py-2.5 border-l-[3px] border-transparent text-gray-400 text-[13px]" onclick="go(4)">
+            04. 智能分析 (Analyze)</div>
+        <div class="nav-item px-6 py-2.5 border-l-[3px] border-transparent text-gray-400 text-[13px]" onclick="go(5)">
+            05. 目標鎖定 (Lock)</div>
+        <div class="nav-item px-6 py-2.5 border-l-[3px] border-transparent text-gray-400 text-[13px]" onclick="go(6)">
+            06. 精準對齊 (Align)</div>
+        <div class="nav-item px-6 py-2.5 border-l-[3px] border-transparent text-gray-400 text-[13px]" onclick="go(7)">
+            07. 訊號驗證 (Verify)</div>
+        <div class="nav-item px-6 py-2.5 border-l-[3px] border-transparent text-gray-400 text-[13px]" onclick="go(8)">
+            08. 完成報告 (Report)</div>
+    </nav>
+    <main class="flex-1 overflow-y-auto relative">
+        <div class="fixed inset-0 pointer-events-none"
+            style="background-image:linear-gradient(rgba(0,240,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.02) 1px,transparent 1px);background-size:50px 50px">
+        </div>
+
+        <!-- Screen 00: Splash Screen -->
+        <div id="p0" class="page fade-in">
+            <div class="px-10 py-8 bg-gradient-to-b from-black/40 to-transparent border-b border-white/10">
+                <h1 class="text-[22px] font-bold mb-1">[Screen 00] 啟動畫面</h1>
+                <p class="text-[#8899BB] text-[13px] leading-relaxed max-w-[800px]">SkyMapper Splash Screen (Tap to
+                    Start)</p>
+            </div>
+            <div class="h-full w-full flex items-center justify-center p-10">
+                <div class="phone-frame bg-black rounded-[50px] border-[14px] border-[#1a1a1a] shadow-2xl overflow-hidden relative"
+                    style="box-shadow:0 60px 120px rgba(0,0,0,.7),inset 0 0 0 2px #333">
+                    <div class="phone-reflection"></div>
+                    <!-- Notch -->
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[150px] h-[34px] bg-[#1a1a1a] rounded-b-[22px] z-50">
+                    </div>
+                    <!-- Status Bar -->
+                    <div
+                        class="absolute top-0 left-0 right-0 h-12 px-7 pt-3.5 flex justify-between text-xs font-semibold z-40 text-white">
+                        <span>9:41</span><span>📶 🔋</span>
+                    </div>
+
+                    <!-- App Content -->
+                    <div class="h-full w-full flex flex-col items-center justify-center bg-black relative overflow-hidden cursor-pointer"
+                        onclick="go(1)">
+                        <!-- Background Effects -->
+                        <div class="absolute inset-0 opacity-30"
+                            style="background-image: radial-gradient(circle at 50% 30%, rgba(0, 240, 255, 0.2), transparent 50%), radial-gradient(circle at 50% 70%, rgba(0, 255, 157, 0.1), transparent 50%);">
+                        </div>
+                        <div class="absolute inset-0"
+                            style="background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:40px 40px">
+                        </div>
+
+                        <!-- Logo & Title -->
+                        <div class="z-10 text-center flex flex-col items-center gap-6 animate-pulse">
+                            <div
+                                class="w-32 h-32 rounded-full bg-gradient-to-tr from-cyan-500/20 to-green-500/20 flex items-center justify-center border border-white/10 shadow-[0_0_50px_rgba(0,255,255,0.2)]">
+                                <span class="text-6xl filter drop-shadow-[0_0_15px_rgba(0,240,255,0.8)]">📡</span>
+                            </div>
+                            <div>
+                                <h1
+                                    class="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neon-cyan via-white to-neon-green tracking-tighter mb-2">
+                                    SkyMapper
+                                </h1>
+                                <p class="text-gray-400 text-sm tracking-[0.3em] font-light uppercase">Satellite
+                                    Alignment Tool</p>
+                            </div>
+                        </div>
+
+                        <div class="absolute bottom-10 text-gray-500 text-xs font-mono animate-bounce">
+                            [ TAP TO START ]
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 01 -->
+        <div id="p1" class="page fade-in">
+            <div class="px-10 py-8 bg-gradient-to-b from-black/40 to-transparent border-b border-white/10">
+                <h1 class="text-[22px] font-bold mb-1">[Screen 01] 初始化</h1>
+                <p class="text-[#8899BB] text-[13px] leading-relaxed max-w-[800px]">連接 UT 設備 → 下載最新 TLE 星曆 → 預覽衛星熱區圖。
+                </p>
+            </div>
+            <div class="p-10 flex gap-10 justify-center items-start flex-wrap">
+                <div class="phone-frame bg-black rounded-[50px] border-[14px] border-[#1a1a1a] shadow-2xl overflow-hidden"
+                    style="box-shadow:0 60px 120px rgba(0,0,0,.7),inset 0 0 0 2px #333">
+                    <div class="phone-reflection"></div>
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[150px] h-[34px] bg-[#1a1a1a] rounded-b-[22px] z-50">
+                    </div>
+                    <div
+                        class="absolute top-0 left-0 right-0 h-12 px-7 pt-3.5 flex justify-between text-xs font-semibold z-40">
+                        <span>9:41</span><span>📶 🔋</span>
+                    </div>
+                    <div id="s1scr" class="h-full w-full flex flex-col relative overflow-hidden bg-black">
+                        <div id="s1perm" class="flex-1 flex flex-col items-center justify-center px-6">
+                            <div
+                                class="w-20 h-20 bg-gray-800/50 rounded-3xl flex items-center justify-center mb-6 text-4xl border border-white/10">
+                                🛡️</div>
+                            <h2 class="text-white text-xl font-bold mb-2">App Permissions</h2>
+                            <p class="text-gray-400 text-xs text-center mb-8 max-w-[260px] leading-relaxed">Please grant
+                                the following permissions to enable AR satellite tracking and device connection.</p>
+                            <div class="w-full space-y-3 mb-10">
+                                <script>
+                                    var _perms = { cam: false, sen: false, loc: false };
+                                    function setPerm(type, allow) {
+                                        _perms[type] = allow;
+                                        var grp = document.getElementById('grp-' + type);
+                                        var btns = grp.getElementsByTagName('button');
+                                        btns[0].className = allow ? "px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gray-700 text-gray-400 transition-all opacity-50" : "px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gray-600 text-white ring-1 ring-white/20 transition-all";
+                                        btns[1].className = allow ? "px-3 py-1.5 rounded-lg text-[10px] font-bold bg-neon-green text-black shadow-lg shadow-neon-green/20 transition-all" : "px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gray-700 text-gray-400 transition-all opacity-50";
+
+                                        var all = _perms.cam && _perms.sen && _perms.loc;
+                                        var main = document.getElementById('s1startBtn');
+                                        if (all) {
+                                            main.disabled = false;
+                                            main.className = "w-full py-4 bg-neon-green text-black font-bold rounded-2xl shadow-lg shadow-neon-green/20 hover:scale-[1.02] transition-transform";
+                                        } else {
+                                            main.disabled = true;
+                                            main.className = "w-full py-4 bg-gray-800 text-gray-500 font-bold rounded-2xl transition-all cursor-not-allowed";
+                                        }
+                                    }
+                                </script>
+                                <div
+                                    class="flex items-center gap-4 bg-gray-800/40 rounded-2xl px-4 py-3 border border-white/5">
+                                    <span class="text-xl bg-gray-700/50 p-2 rounded-lg">📷</span>
+                                    <div class="flex-1">
+                                        <p class="text-white text-sm font-bold">Camera</p>
+                                        <p class="text-gray-500 text-[10px]">For AR overlay</p>
+                                    </div>
+                                    <div class="flex gap-2" id="grp-cam">
+                                        <button
+                                            class="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gray-700 text-gray-400 transition-all"
+                                            onclick="setPerm('cam', false)">Not Allow</button>
+                                        <button
+                                            class="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gray-700 text-gray-400 transition-all"
+                                            onclick="setPerm('cam', true)">Allow</button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex items-center gap-4 bg-gray-800/40 rounded-2xl px-4 py-3 border border-white/5">
+                                    <span class="text-xl bg-gray-700/50 p-2 rounded-lg">🧭</span>
+                                    <div class="flex-1">
+                                        <p class="text-white text-sm font-bold">Sensors</p>
+                                        <p class="text-gray-500 text-[10px]">Compass & Gyro</p>
+                                    </div>
+                                    <div class="flex gap-2" id="grp-sen">
+                                        <button
+                                            class="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gray-700 text-gray-400 transition-all"
+                                            onclick="setPerm('sen', false)">Not Allow</button>
+                                        <button
+                                            class="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gray-700 text-gray-400 transition-all"
+                                            onclick="setPerm('sen', true)">Allow</button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex items-center gap-4 bg-gray-800/40 rounded-2xl px-4 py-3 border border-white/5">
+                                    <span class="text-xl bg-gray-700/50 p-2 rounded-lg">📍</span>
+                                    <div class="flex-1">
+                                        <p class="text-white text-sm font-bold">Location</p>
+                                        <p class="text-gray-500 text-[10px]">Precise GPS</p>
+                                    </div>
+                                    <div class="flex gap-2" id="grp-loc">
+                                        <button
+                                            class="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gray-700 text-gray-400 transition-all"
+                                            onclick="setPerm('loc', false)">Not Allow</button>
+                                        <button
+                                            class="px-3 py-1.5 rounded-lg text-[10px] font-bold bg-gray-700 text-gray-400 transition-all"
+                                            onclick="setPerm('loc', true)">Allow</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="s1startBtn" disabled
+                                class="w-full py-4 bg-gray-800 text-gray-500 font-bold rounded-2xl transition-all cursor-not-allowed"
+                                onclick="s1('idle', this)">Grant & Continue →</button>
+                        </div>
+
+                        <div id="s1idle" class="hidden flex-1 flex flex-col relative overflow-hidden">
+                            <div id="s1radar"
+                                class="flex-1 flex flex-col items-center justify-center transition-all duration-700">
+                                <div class="relative w-48 h-48 mb-6">
+                                    <div class="absolute inset-0 border border-gray-700 rounded-full"></div>
+                                    <div class="absolute inset-5 border border-gray-600 rounded-full"></div>
+                                    <div class="absolute inset-10 border border-gray-500/50 rounded-full"></div>
+                                    <div class="absolute inset-0 rounded-full"
+                                        style="background:conic-gradient(from 0deg,transparent 0%,rgba(0,240,255,.15) 25%,transparent 50%);animation:spin 2s linear infinite">
+                                    </div>
+                                    <div class="absolute inset-0 flex items-center justify-center text-5xl float-up">🛰️
+                                    </div>
+                                </div>
+                                <p id="s1status" class="text-gray-400 text-base font-semibold">Searching for UT
+                                    devices...</p>
+                                <div id="s1dots" class="flex gap-1 mt-3"><span
+                                        class="w-2 h-2 bg-neon-cyan rounded-full pulse-glow"></span><span
+                                        class="w-2 h-2 bg-neon-cyan rounded-full pulse-glow"
+                                        style="animation-delay:.3s"></span><span
+                                        class="w-2 h-2 bg-neon-cyan rounded-full pulse-glow"
+                                        style="animation-delay:.6s"></span></div>
+                            </div>
+                            <div id="s1devList"
+                                class="absolute bottom-0 left-0 right-0 bg-[#0a1018] border-t border-white/10 rounded-t-[32px] p-6 transition-transform duration-500 translate-y-full flex flex-col h-[60%] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+                                <div class="w-12 h-1.5 bg-gray-700 rounded-full mx-auto mb-6"></div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-neon-cyan text-xl">📡</span>
+                                        <h3 class="text-white text-lg font-bold">Devices Found (3)</h3>
+                                    </div>
+                                    <div class="w-4 h-4 rounded-full bg-neon-green animate-pulse"></div>
+                                </div>
+                                <div class="space-y-3 overflow-y-auto flex-1 pr-1 custom-scrollbar">
+                                    <div class="bg-gray-800/60 rounded-2xl p-4 border border-white/5 flex items-center gap-3 active:scale-95 transition-transform"
+                                        onclick="s1connect('UT-Alpha-12')">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-neon-cyan/10 flex items-center justify-center text-lg">
+                                            A</div>
+                                        <div class="flex-1">
+                                            <p class="text-white text-sm font-bold">UT-Alpha-12</p>
+                                            <div class="flex gap-2 mt-0.5"><span class="text-neon-green text-[10px]">●
+                                                    Excellent -42dBm</span></div>
+                                        </div>
+                                        <button
+                                            class="bg-ios-blue text-white text-xs font-bold px-4 py-2 rounded-xl">Connect</button>
+                                    </div>
+                                    <div class="bg-gray-800/60 rounded-2xl p-4 border border-white/5 flex items-center gap-3 active:scale-95 transition-transform"
+                                        onclick="s1connect('UT-Beta-07')">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-gray-700/50 flex items-center justify-center text-lg text-gray-400">
+                                            B</div>
+                                        <div class="flex-1">
+                                            <p class="text-white text-sm font-bold">UT-Beta-07</p>
+                                            <div class="flex gap-2 mt-0.5"><span class="text-yellow-500 text-[10px]">●
+                                                    Good -68dBm</span></div>
+                                        </div>
+                                        <button
+                                            class="bg-gray-700 text-white text-xs font-bold px-4 py-2 rounded-xl">Connect</button>
+                                    </div>
+                                    <div class="bg-gray-800/60 rounded-2xl p-4 border border-white/5 flex items-center gap-3 active:scale-95 transition-transform"
+                                        onclick="s1connect('UT-Gamma-03')">
+                                        <div
+                                            class="w-10 h-10 rounded-full bg-gray-700/50 flex items-center justify-center text-lg text-gray-400">
+                                            G</div>
+                                        <div class="flex-1">
+                                            <p class="text-white text-sm font-bold">UT-Gamma-03</p>
+                                            <div class="flex gap-2 mt-0.5"><span class="text-red-400 text-[10px]">● Weak
+                                                    -85dBm</span></div>
+                                        </div>
+                                        <button
+                                            class="bg-gray-700 text-white text-xs font-bold px-4 py-2 rounded-xl">Connect</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="s1ok" class="hidden flex-1 flex flex-col screen-inner">
+                            <div class="flex-1 flex flex-col items-center justify-center px-5">
+                                <div
+                                    class="w-14 h-14 rounded-full bg-neon-green/20 flex items-center justify-center mb-3">
+                                    <span class="text-2xl">✓</span>
+                                </div>
+                                <p class="text-neon-green text-lg font-bold mb-1">Connected</p>
+                                <p class="text-gray-400 text-sm mb-4 s1devName">UT-Alpha-12</p>
+                            </div>
+                            <div class="p-5 space-y-3">
+                                <div class="bg-gray-800/90 glass rounded-2xl p-4 border border-neon-green/30">
+                                    <div class="flex items-center gap-3"><span class="text-2xl">📶</span>
+                                        <div class="flex-1">
+                                            <p class="text-[10px] text-neon-green uppercase tracking-wide">Connected</p>
+                                            <p class="text-white font-bold s1devName">UT-Alpha-12</p>
+                                        </div>
+                                        <span
+                                            class="px-3 py-1.5 border border-gray-600 rounded-xl text-white text-xs">Config</span>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-800/90 glass rounded-2xl overflow-hidden border border-white/10">
+                                    <p class="text-[10px] text-gray-400 uppercase px-4 pt-3 mb-2">Heatmap Preview</p>
+                                    <div class="relative h-36 mx-3 mb-3 rounded-xl overflow-hidden">
+                                        <img src="Heatmap Preview.png" class="w-full h-full object-cover"
+                                            style="filter:brightness(0.9)">
+                                        <div
+                                            class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent">
+                                        </div>
+                                        <p class="absolute bottom-2 left-3 text-[10px] text-white/80">SDTF 3D 衛星熱區預覽 —
+                                            4450 sats</p>
+                                    </div>
+                                </div>
+                                <button class="w-full bg-ios-blue text-white rounded-2xl py-4 font-semibold"
+                                    onclick="go(2)">Start Alignment →</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-[360px] space-y-4">
+                    <div class="bg-[rgba(20,30,60,0.6)] glass border border-white/10 rounded-2xl p-6">
+                        <h3
+                            class="text-[12px] uppercase tracking-wider text-neon-cyan mb-3 pb-2 border-b border-white/10">
+                            技術說明</h3>
+                        <div class="text-[13px] text-gray-300 leading-relaxed space-y-2">
+                            <p><strong class="text-white">TLE (Two-Line Element)</strong>：衛星軌道標準格式。</p>
+                            <p><strong class="text-white">Heatmap Preview</strong>：基於 TLE + SDTF 預覽 3D 衛星訊號潛力圖。</p>
+                        </div>
+                    </div>
+                    <div class="bg-[rgba(20,30,60,0.6)] glass border border-white/10 rounded-2xl p-6">
+                        <h3
+                            class="text-[12px] uppercase tracking-wider text-neon-cyan mb-3 pb-2 border-b border-white/10">
+                            狀態模擬</h3>
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="ctrl-btn on px-4 py-2 rounded-lg border border-white/10 text-xs"
+                                onclick="s1('perm',this)">Permission</button>
+                            <button class="ctrl-btn px-4 py-2 rounded-lg border border-white/10 text-xs text-gray-400"
+                                onclick="s1('idle',this)">Search</button>
+                            <button class="ctrl-btn px-4 py-2 rounded-lg border border-white/10 text-xs text-gray-400"
+                                onclick="s1('ok',this)">Connected</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 02 -->
+        <div id="p2" class="page hidden fade-in">
+            <div class="px-10 py-8 bg-gradient-to-b from-black/40 to-transparent border-b border-white/10">
+                <h1 class="text-[22px] font-bold mb-1">[Screen 02] 儀表板</h1>
+                <p class="text-[#8899BB] text-[13px] leading-relaxed max-w-[800px]">Layered Heatmap 3D 天球圖 +
+                    多熱區方位角/仰角範圍建議。</p>
+            </div>
+            <div class="p-10 flex gap-10 justify-center items-start flex-wrap">
+                <div class="phone-frame bg-black rounded-[50px] border-[14px] border-[#1a1a1a] shadow-2xl overflow-hidden"
+                    style="box-shadow:0 60px 120px rgba(0,0,0,.7),inset 0 0 0 2px #333">
+                    <div class="phone-reflection"></div>
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[150px] h-[34px] bg-[#1a1a1a] rounded-b-[22px] z-50">
+                    </div>
+                    <div
+                        class="absolute top-0 left-0 right-0 h-12 px-7 pt-3.5 flex justify-between text-xs font-semibold z-40">
+                        <span>9:42</span><span>📶 🔋</span>
+                    </div>
+                    <div class="h-full w-full flex flex-col relative overflow-hidden bg-black screen-inner">
+                        <div class="px-5 pt-14 pb-3 flex justify-between items-center">
+                            <h2 class="text-white text-xl font-bold">Dashboard</h2>
+                            <span class="text-neon-cyan text-xs uppercase tracking-wide font-semibold">Tactical
+                                Mode</span>
+                        </div>
+                        <div class="relative mx-4 rounded-2xl overflow-hidden border border-white/10"
+                            style="height:320px">
+                            <img id="s2heatmap" src="Heatmap Preview.png"
+                                class="w-full h-full object-cover transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30">
+                            </div>
+                            <div id="s2modeLabel"
+                                class="absolute bottom-2 right-3 bg-black/60 glass rounded-lg px-2 py-1 border border-white/10">
+                                <p class="text-neon-cyan text-[9px] font-semibold">NORTH UP</p>
+                            </div>
+                            <div
+                                class="absolute top-3 left-3 bg-black/60 glass rounded-xl p-2.5 border border-white/10">
+                                <p class="text-gray-400 text-[9px] uppercase">GPS</p>
+                                <p class="text-white text-sm font-bold">± 1.2m</p>
+                            </div>
+                            <div
+                                class="absolute top-3 right-3 bg-black/60 glass rounded-xl p-2.5 border border-white/10">
+                                <p class="text-gray-400 text-[9px] uppercase">Sats</p>
+                                <p class="text-neon-green text-sm font-bold">32</p>
+                            </div>
+                        </div>
+                        <div class="p-5 space-y-3">
+                            <div class="bg-gray-900/90 rounded-2xl p-4 border border-red-500/20">
+                                <div class="flex items-center gap-2 mb-2"><span
+                                        class="w-3 h-3 rounded-full bg-red-500"></span>
+                                    <p class="text-white text-sm font-bold">Zone 1 — Peak (Recommended)</p>
+                                </div>
+                                <p class="text-gray-400 text-xs">EL 40°–50° | AZ 60°–70°</p>
+                                <p class="text-neon-green text-xs mt-1">Expected SNR: &gt;18 dB</p>
+                            </div>
+                            <div class="bg-gray-900/90 rounded-2xl p-4 border border-orange-500/20">
+                                <div class="flex items-center gap-2 mb-2"><span
+                                        class="w-3 h-3 rounded-full bg-orange-500"></span>
+                                    <p class="text-white text-sm font-bold">Zone 2 — Good</p>
+                                </div>
+                                <p class="text-gray-400 text-xs">EL 35°–45° | AZ 110°–128°</p>
+                                <p class="text-neon-orange text-xs mt-1">Expected SNR: 15–18 dB</p>
+                            </div>
+                            <button class="w-full py-3 bg-ios-blue rounded-2xl text-white text-sm font-semibold"
+                                onclick="go(3)">Start Scan →</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-[360px] space-y-4">
+                    <div class="bg-[rgba(20,30,60,0.6)] glass border border-white/10 rounded-2xl p-6">
+                        <h3
+                            class="text-[12px] uppercase tracking-wider text-neon-cyan mb-3 pb-2 border-b border-white/10">
+                            技術說明</h3>
+                        <div class="text-[13px] text-gray-300 leading-relaxed space-y-2">
+                            <p><strong class="text-white">Layered Heatmap</strong>：3D 天球圖。</p>
+                            <ul class="ml-4 space-y-1 text-xs">
+                                <li><span class="text-red-400">■ Peak</span> Zone 1: EL 40°–50° | AZ 60°–70°</li>
+                                <li><span class="text-orange-400">■ Good</span> Zone 2: EL 35°–45° | AZ 110°–128°</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="bg-[rgba(20,30,60,0.6)] glass border border-white/10 rounded-2xl p-6">
+                        <h3
+                            class="text-[12px] uppercase tracking-wider text-neon-cyan mb-3 pb-2 border-b border-white/10">
+                            地圖控制</h3>
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="ctrl-btn on px-4 py-2 rounded-lg border border-white/10 text-xs"
+                                onclick="s2('N',this)">North Up</button>
+                            <button class="ctrl-btn px-4 py-2 rounded-lg border border-white/10 text-xs text-gray-400"
+                                onclick="s2('H',this)">Heading Up</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- Screen 03: AR Scan -->
+        <div id="p3" class="page hidden fade-in">
+            <div class="px-10 py-8 bg-gradient-to-b from-black/40 to-transparent border-b border-white/10">
+                <h1 class="text-[22px] font-bold mb-1">[Screen 03] AR 掃描</h1>
+                <p class="text-[#8899BB] text-[13px] leading-relaxed max-w-[800px]">轉動手機 360° 掃描天空，建立遮蔽圖。中央雷達圖即時顯示掃描進度。
+                </p>
+            </div>
+            <div class="p-10 flex gap-10 justify-center items-start flex-wrap">
+                <div class="phone-frame bg-black rounded-[50px] border-[14px] border-[#1a1a1a] shadow-2xl overflow-hidden"
+                    style="box-shadow:0 60px 120px rgba(0,0,0,.7),inset 0 0 0 2px #333">
+                    <div class="phone-reflection"></div>
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[150px] h-[34px] bg-[#1a1a1a] rounded-b-[22px] z-50">
+                    </div>
+                    <div
+                        class="absolute top-0 left-0 right-0 h-12 px-7 pt-3.5 flex justify-between text-xs font-semibold z-40">
+                        <span>14:49</span><span>📶 🔋</span>
+                    </div>
+                    <div class="h-full w-full relative overflow-hidden">
+                        <img src="Image1.jpg" class="ar-bg">
+                        <canvas id="redCloudCanvas" width="375" height="812" class="absolute inset-0 w-full h-full"
+                            style="mix-blend-mode:screen;opacity:0.5"></canvas>
+                        <canvas id="skyDotsCanvas" width="375" height="812" class="absolute inset-0 w-full h-full"
+                            style="opacity:0.6"></canvas>
+                        <canvas id="yoloGridCanvas" width="375" height="812" class="absolute inset-0 w-full h-full"
+                            style="opacity:0.55"></canvas>
+                        <div
+                            class="absolute top-14 left-3 right-3 bg-black/70 glass rounded-2xl p-2.5 border border-neon-cyan/20 z-10">
+                            <div class="flex items-center gap-2">
+                                <span class="text-neon-cyan text-lg">📡</span>
+                                <div>
+                                    <p class="text-white text-[12px] font-semibold"><span id="s3az">AZ: 345°</span>
+                                        <span id="s3el">EL: +31°</span> | 衛星
+                                    </p>
+                                    <p class="text-gray-300 text-[11px]">數: 4450</p>
+                                </div>
+                                <div id="s3alert"
+                                    class="ml-auto bg-neon-green/20 border border-neon-green/40 rounded-lg px-2 py-1">
+                                    <p class="text-neon-green text-[10px] font-semibold">✓ Good</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-28 left-3 right-3 flex gap-2 z-10">
+                            <span class="flex items-center gap-1 bg-black/50 rounded px-1.5 py-0.5"><span
+                                    class="w-2 h-2 rounded-full bg-red-500"></span><span
+                                    class="text-[8px] text-gray-300">SDTF</span></span>
+                            <span class="flex items-center gap-1 bg-black/50 rounded px-1.5 py-0.5"><span
+                                    class="w-2 h-2 rounded-full bg-blue-400"></span><span
+                                    class="text-[8px] text-gray-300">Sky</span></span>
+                            <span class="flex items-center gap-1 bg-black/50 rounded px-1.5 py-0.5"><span
+                                    class="w-2 h-2 rounded-full bg-green-400"></span><span
+                                    class="text-[8px] text-gray-300">Building</span></span>
+                        </div>
+                        <div class="absolute bottom-[25%] left-1/2 -translate-x-1/2 z-30">
+                            <canvas id="radarScan" width="220" height="220"></canvas>
+                        </div>
+                        <div id="s3progress"
+                            class="hidden absolute bottom-24 left-4 right-4 bg-black/70 glass rounded-2xl p-3 border border-white/10 z-10">
+                            <div class="flex justify-between mb-2">
+                                <div>
+                                    <p class="text-gray-400 text-[10px] uppercase">Progress</p>
+                                    <p class="text-neon-green font-bold" id="s3pctVal">0%</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 text-[10px] uppercase">Blockage</p>
+                                    <p class="text-white font-bold">12%</p>
+                                </div>
+                            </div>
+                            <div class="h-1 bg-gray-800 rounded-full overflow-hidden">
+                                <div id="s3bar" class="h-full bg-neon-green rounded-full transition-all duration-300"
+                                    style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-8 left-5 right-5 z-10">
+                            <button id="s3btn"
+                                class="w-full bg-neon-green/90 text-black rounded-2xl py-4 font-bold text-base shadow-lg"
+                                style="box-shadow:0 4px 20px rgba(0,255,157,.3)" onclick="s3('scan', this)">Start
+                                Scan</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-[360px] space-y-4">
+                    <div class="bg-[rgba(20,30,60,0.6)] glass border border-white/10 rounded-2xl p-6">
+                        <h3
+                            class="text-[12px] uppercase tracking-wider text-neon-cyan mb-3 pb-2 border-b border-white/10">
+                            狀態模擬
+                        </h3>
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="ctrl-btn on px-4 py-2 rounded-lg border border-white/10 text-xs"
+                                onclick="s3('idle',this)">待機</button>
+                            <button class="ctrl-btn px-4 py-2 rounded-lg border border-white/10 text-xs text-gray-400"
+                                onclick="s3('scan',this)">▶ 掃描中</button>
+                            <button class="ctrl-btn px-4 py-2 rounded-lg border border-white/10 text-xs text-gray-400"
+                                onclick="s3('done',this)">✓ 完成</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 04: Analysis -->
+        <div id="p4" class="page hidden fade-in">
+            <div class="px-10 py-8 bg-gradient-to-b from-black/40 to-transparent border-b border-white/10">
+                <h1 class="text-[22px] font-bold mb-1">[Screen 04] 智能分析</h1>
+                <p class="text-[#8899BB] text-[13px] leading-relaxed max-w-[800px]">NXP i.MX8MP 4 階段: Upload → Heatmap →
+                    Intersection → Golden Pose。</p>
+            </div>
+            <div class="p-10 flex gap-10 justify-center items-start flex-wrap">
+                <div class="phone-frame bg-black rounded-[50px] border-[14px] border-[#1a1a1a] shadow-2xl overflow-hidden"
+                    style="box-shadow:0 60px 120px rgba(0,0,0,.7),inset 0 0 0 2px #333">
+                    <div class="phone-reflection"></div>
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[150px] h-[34px] bg-[#1a1a1a] rounded-b-[22px] z-50">
+                    </div>
+                    <div
+                        class="absolute top-0 left-0 right-0 h-12 px-7 pt-3.5 flex justify-between text-xs font-semibold z-40">
+                        <span>9:42</span><span>📶 🔋</span>
+                    </div>
+                    <div class="h-full w-full flex flex-col relative overflow-y-auto screen-inner">
+                        <img src="Image1.jpg" class="ar-bg" style="filter:brightness(0.2) blur(4px)">
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/70"></div>
+                        <div class="relative z-10 flex-1 flex flex-col">
+                            <div id="s4header" class="flex-1 flex flex-col items-center justify-center">
+                                <div class="flex items-center gap-3 mb-8">
+                                    <div class="flex flex-col items-center gap-2">
+                                        <div
+                                            class="w-14 h-14 bg-red-500/20 rounded-full flex items-center justify-center border border-red-500/50 shadow-[0_0_15px_rgba(255,50,0,0.3)]">
+                                            <span class="text-xl">🔴</span>
+                                        </div>
+                                        <span class="text-[10px] text-red-400 font-mono tracking-wider">SDTF DATA</span>
+                                    </div>
+                                    <span class="text-white text-2xl font-light opacity-50">+</span>
+                                    <div class="flex flex-col items-center gap-2">
+                                        <div
+                                            class="w-14 h-14 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-500/50 shadow-[0_0_15px_rgba(50,150,255,0.3)]">
+                                            <span class="text-xl">📷</span>
+                                        </div>
+                                        <span class="text-[10px] text-blue-400 font-mono tracking-wider">AR SCAN</span>
+                                    </div>
+                                    <span class="text-white text-2xl font-light opacity-50">=</span>
+                                    <div class="flex flex-col items-center gap-2">
+                                        <div
+                                            class="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center border border-yellow-500/50 shadow-[0_0_25px_rgba(255,215,0,0.6)] animate-pulse">
+                                            <span
+                                                class="text-3xl filter drop-shadow-[0_0_10px_rgba(255,215,0,0.8)]">⭐️</span>
+                                        </div>
+                                        <span
+                                            class="text-[10px] text-yellow-400 font-bold font-mono tracking-wider">GOLDEN
+                                            POSE</span>
+                                    </div>
+                                </div>
+                                <button onclick="s4('analyze', this)"
+                                    class="bg-neon-cyan/90 text-black rounded-xl px-8 py-3 font-bold shadow-[0_0_20px_rgba(0,240,255,0.4)] hover:scale-105 transition-transform">
+                                    START ANALYSIS
+                                </button>
+                            </div>
+                            <div id="s4results" class="hidden flex-1 flex flex-col">
+                                <div class="px-5 pt-14 pb-3 flex justify-between items-center">
+                                    <h2 class="text-white text-xl font-bold">Sky Analysis</h2>
+                                    <span class="text-gray-400 text-sm">NXP Processing</span>
+                                </div>
+                                <div class="flex-1 flex flex-col items-center justify-center px-5">
+                                    <div class="relative w-[220px] h-[220px] mb-4">
+                                        <canvas id="analysisGlobe" width="220" height="220"></canvas>
+                                    </div>
+                                    <p id="s4label" class="text-neon-cyan text-sm mb-4 pulse-glow">Awaiting Command...
+                                    </p>
+                                    <div
+                                        class="w-full max-w-[280px] h-[60px] bg-black/60 glass rounded-lg p-2.5 border border-gray-800 overflow-hidden font-mono text-[10px] text-green-400">
+                                        <div id="s4log">
+                                            <p>&gt; System Ready</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-5 space-y-3">
+                                    <div class="bg-black/50 glass rounded-2xl p-4 border border-white/10">
+                                        <p class="text-gray-400 text-[10px] uppercase mb-2">Progress</p>
+                                        <div class="flex gap-1.5 mb-2">
+                                            <div id="stg1"
+                                                class="flex-1 h-1.5 bg-gray-700 rounded-full transition-colors duration-300">
+                                            </div>
+                                            <div id="stg2"
+                                                class="flex-1 h-1.5 bg-gray-700 rounded-full transition-colors duration-300">
+                                            </div>
+                                            <div id="stg3"
+                                                class="flex-1 h-1.5 bg-gray-700 rounded-full transition-colors duration-300">
+                                            </div>
+                                            <div id="stg4"
+                                                class="flex-1 h-1.5 bg-gray-700 rounded-full transition-colors duration-300">
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between text-[10px] text-gray-500">
+                                            <span>Upload</span><span>Heatmap</span><span>Intersect</span><span>Optimize</span>
+                                        </div>
+                                    </div>
+                                    <!-- Golden Pose Result (hidden until analysis done) -->
+                                    <div id="s4result"
+                                        class="hidden bg-black/50 glass rounded-2xl p-4 border border-neon-green/30">
+                                        <p class="text-neon-green text-[10px] uppercase mb-3 font-semibold">✓ Golden
+                                            Pose
+                                            Found</p>
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <div
+                                                class="bg-gray-800/80 rounded-xl p-2.5 text-center border border-gray-700">
+                                                <p class="text-gray-400 text-[9px] uppercase mb-0.5">Azimuth</p>
+                                                <p class="text-white text-lg font-bold">135.5°</p>
+                                            </div>
+                                            <div
+                                                class="bg-gray-800/80 rounded-xl p-2.5 text-center border border-gray-700">
+                                                <p class="text-gray-400 text-[9px] uppercase mb-0.5">Elevation</p>
+                                                <p class="text-white text-lg font-bold">44.0°</p>
+                                            </div>
+                                            <div
+                                                class="bg-gray-800/80 rounded-xl p-2.5 text-center border border-gray-700">
+                                                <p class="text-gray-400 text-[9px] uppercase mb-0.5">Pred. SNR</p>
+                                                <p class="text-neon-green text-lg font-bold">17.8 dB</p>
+                                            </div>
+                                            <div
+                                                class="bg-gray-800/80 rounded-xl p-2.5 text-center border border-gray-700">
+                                                <p class="text-gray-400 text-[9px] uppercase mb-0.5">Confidence</p>
+                                                <p class="text-neon-green text-lg font-bold">98%</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button id="s4next"
+                                        class="hidden w-full bg-neon-green text-black rounded-2xl py-4 font-bold text-base shadow-lg"
+                                        onclick="go(5)">🎯 Target Lock →</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-[360px] space-y-4">
+                    <div class="bg-[rgba(20,30,60,0.6)] glass border border-white/10 rounded-2xl p-6">
+                        <h3
+                            class="text-[12px] uppercase tracking-wider text-neon-cyan mb-3 pb-2 border-b border-white/10">
+                            動畫控制
+                        </h3>
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="ctrl-btn on px-4 py-2 rounded-lg border border-white/10 text-xs"
+                                onclick="s4('reset',this)">重置</button>
+                            <button class="ctrl-btn px-4 py-2 rounded-lg border border-white/10 text-xs text-gray-400"
+                                onclick="s4('run',this)">▶ 播放動畫</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- Screen 05: Target Lock + Plan A/B/C -->
+        <div id="p5" class="page hidden fade-in">
+            <div class="px-10 py-8 bg-gradient-to-b from-black/40 to-transparent border-b border-white/10">
+                <h1 class="text-[22px] font-bold mb-1">[Screen 05] 目標鎖定</h1>
+                <p class="text-[#8899BB] text-[13px] leading-relaxed max-w-[800px]">Golden Pose (Plan A) + 替代方案 Plan B /
+                    C。</p>
+            </div>
+            <div class="p-10 flex gap-10 justify-center items-start flex-wrap">
+                <div class="phone-frame bg-black rounded-[50px] border-[14px] border-[#1a1a1a] shadow-2xl overflow-hidden"
+                    style="box-shadow:0 60px 120px rgba(0,0,0,.7),inset 0 0 0 2px #333">
+                    <div class="phone-reflection"></div>
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[150px] h-[34px] bg-[#1a1a1a] rounded-b-[22px] z-50">
+                    </div>
+                    <div
+                        class="absolute top-0 left-0 right-0 h-12 px-7 pt-3.5 flex justify-between text-xs font-semibold z-40">
+                        <span>14:49</span><span>📶 🔋</span>
+                    </div>
+                    <div class="h-full w-full relative overflow-hidden screen-inner">
+                        <img src="Image1.jpg" class="ar-bg" style="filter:brightness(0.15)">
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/40 to-black/70"></div>
+                        <div class="relative z-10 pt-14 px-5 pb-8">
+                            <div class="flex justify-between items-center mb-5">
+                                <h2 class="text-white text-xl font-bold">Target Lock</h2>
+                                <span
+                                    class="px-3 py-1 bg-neon-green/20 border border-neon-green/40 rounded-full text-neon-green text-xs font-semibold">AI
+                                    Active</span>
+                            </div>
+                            <div id="planA"
+                                class="border-2 border-neon-green rounded-2xl p-4 mb-3 bg-black/60 glass cursor-pointer transition-all"
+                                style="box-shadow:0 0 15px rgba(0,255,157,.15)" onclick="selectPlan('A')">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span
+                                        class="bg-neon-green text-black text-[11px] font-bold px-3 py-1 rounded-full">PLAN
+                                        A —
+                                        Recommended</span>
+                                    <span class="text-neon-green text-xs font-semibold">✓</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 mb-3">
+                                    <div class="bg-gray-800/80 rounded-xl p-3 text-center border border-gray-700">
+                                        <p class="text-gray-400 text-[9px] uppercase mb-1">方位角</p>
+                                        <p class="text-white text-xl font-bold">130°~145°</p>
+                                        <p class="text-neon-green text-[10px]">中心 135.5°</p>
+                                    </div>
+                                    <div class="bg-gray-800/80 rounded-xl p-3 text-center border border-gray-700">
+                                        <p class="text-gray-400 text-[9px] uppercase mb-1">仰角</p>
+                                        <p class="text-white text-xl font-bold">40°~50°</p>
+                                        <p class="text-neon-green text-[10px]">中心 44°</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="bg-gray-800/80 rounded-xl p-3 text-center border border-gray-700">
+                                        <p class="text-gray-400 text-[9px] uppercase mb-1">PRED. SNR</p>
+                                        <p class="text-neon-green text-2xl font-bold">17.8 dB</p>
+                                    </div>
+                                    <div class="bg-gray-800/80 rounded-xl p-3 text-center border border-gray-700">
+                                        <p class="text-gray-400 text-[9px] uppercase mb-1">CONFIDENCE</p>
+                                        <p class="text-neon-green text-2xl font-bold">98%</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="planB"
+                                class="border border-orange-500/40 rounded-2xl p-3 mb-3 bg-black/40 glass cursor-pointer transition-all opacity-70 hover:opacity-100"
+                                onclick="selectPlan('B')">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <span class="text-orange-400 text-[11px] font-bold uppercase">PLAN B</span>
+                                        <p class="text-white text-sm mt-1">Az 195°~210°, El 35°~45°</p>
+                                    </div>
+                                    <span
+                                        class="bg-orange-500/20 border border-orange-500/40 text-orange-400 text-sm font-bold px-3 py-1.5 rounded-xl">11.2
+                                        dB</span>
+                                </div>
+                            </div>
+                            <div id="planC"
+                                class="border border-gray-600/40 rounded-2xl p-3 mb-4 bg-black/40 glass cursor-pointer transition-all opacity-70 hover:opacity-100"
+                                onclick="selectPlan('C')">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <span class="text-gray-400 text-[11px] font-bold uppercase">PLAN C</span>
+                                        <p class="text-white text-sm mt-1">Az 280°~295°, El 25°~35°</p>
+                                    </div>
+                                    <span
+                                        class="bg-gray-700/50 border border-gray-600/40 text-gray-400 text-sm font-bold px-3 py-1.5 rounded-xl">8.5
+                                        dB</span>
+                                </div>
+                            </div>
+                            <button id="lockBtn"
+                                class="w-full py-3.5 rounded-2xl font-bold text-base text-black shadow-lg"
+                                style="background:linear-gradient(135deg,#FFD700,#FFAA00);box-shadow:0 0 20px rgba(255,215,0,.3)"
+                                onclick="go(6)">🔒 CONFIRM LOCK</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-[360px] space-y-4">
+                    <div class="bg-[rgba(20,30,60,0.6)] glass border border-white/10 rounded-2xl p-6">
+                        <h3
+                            class="text-[12px] uppercase tracking-wider text-neon-cyan mb-3 pb-2 border-b border-white/10">
+                            方案模擬
+                        </h3>
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="ctrl-btn on px-4 py-2 rounded-lg border border-white/10 text-xs"
+                                onclick="selectPlan('A')">Plan A</button>
+                            <button class="ctrl-btn px-4 py-2 rounded-lg border border-white/10 text-xs text-gray-400"
+                                onclick="selectPlan('B')">Plan B</button>
+                            <button class="ctrl-btn px-4 py-2 rounded-lg border border-white/10 text-xs text-gray-400"
+                                onclick="selectPlan('C')">Plan C</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 06: Alignment -->
+        <div id="p6" class="page hidden fade-in">
+            <div class="px-10 py-8 bg-gradient-to-b from-black/40 to-transparent border-b border-white/10">
+                <h1 class="text-[22px] font-bold mb-1">[Screen 06] 精準對齊</h1>
+                <p class="text-[#8899BB] text-[13px] leading-relaxed max-w-[800px]">把天線板 (藍框) 移到 Target Pose (綠框)。</p>
+            </div>
+            <div class="p-10 flex gap-10 justify-center items-start flex-wrap">
+                <div class="phone-frame bg-black rounded-[50px] border-[14px] border-[#1a1a1a] shadow-2xl overflow-hidden"
+                    style="box-shadow:0 60px 120px rgba(0,0,0,.7),inset 0 0 0 2px #333">
+                    <div class="phone-reflection"></div>
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[150px] h-[34px] bg-[#1a1a1a] rounded-b-[22px] z-50">
+                    </div>
+                    <div
+                        class="absolute top-0 left-0 right-0 h-12 px-7 pt-3.5 flex justify-between text-xs font-semibold z-40">
+                        <span>9:43</span><span>📶 🔋</span>
+                    </div>
+                    <div class="h-full w-full flex flex-col relative overflow-hidden screen-inner"
+                        style="background:radial-gradient(circle at 50% 40%,#0a1828,#000)">
+                        <div class="px-5 pt-14 pb-2 flex justify-between items-center">
+                            <h2 class="text-white text-xl font-bold">Alignment</h2>
+                            <span id="alignBadge"
+                                class="px-3 py-1 bg-neon-orange/20 border border-neon-orange/40 rounded-full text-neon-orange text-xs font-semibold">Adjusting</span>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center justify-center px-5 relative">
+                            <div class="relative w-64 h-64 mb-6">
+                                <div class="absolute inset-0 rounded-full border border-white/10"
+                                    style="background-image:radial-gradient(circle,transparent 58%,rgba(0,240,255,.04) 60%,transparent 62%),radial-gradient(circle,transparent 38%,rgba(0,240,255,.03) 40%,transparent 42%),radial-gradient(circle,transparent 18%,rgba(0,240,255,.02) 20%,transparent 22%)">
+                                </div>
+                                <div class="absolute inset-0">
+                                    <div class="absolute left-1/2 top-0 bottom-0 w-px bg-white/5"></div>
+                                    <div class="absolute top-1/2 left-0 right-0 h-px bg-white/5"></div>
+                                </div>
+                                <div id="targetFrame" class="absolute transition-all duration-300"
+                                    style="top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:50px">
+                                    <div class="w-full h-full border-2 border-dashed border-neon-green/70 rounded-lg"
+                                        style="box-shadow:0 0 15px rgba(0,255,157,.2)"></div>
+                                    <div
+                                        class="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] text-neon-green font-bold whitespace-nowrap">
+                                        TARGET</div>
+                                    <div
+                                        class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] text-gray-400 whitespace-nowrap font-mono">
+                                        Az:135° El:44°</div>
+                                </div>
+                                <div id="antennaFrame" class="absolute transition-all duration-500 ease-out"
+                                    style="top:40%;left:35%;transform:translate(-50%,-50%);width:80px;height:50px">
+                                    <div class="w-full h-full border-2 border-neon-cyan rounded-lg bg-neon-cyan/10"
+                                        style="box-shadow:0 0 12px rgba(0,240,255,.3)"></div>
+                                    <div
+                                        class="absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] text-neon-cyan font-bold whitespace-nowrap">
+                                        ANTENNA</div>
+                                    <div id="antennaCoord"
+                                        class="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[9px] text-gray-400 whitespace-nowrap font-mono">
+                                        Az:120° El:30°</div>
+                                </div>
+                                <div id="alignGuideH"
+                                    class="hidden absolute top-1/2 left-0 right-0 h-px bg-neon-green/30">
+                                </div>
+                                <div id="alignGuideV"
+                                    class="hidden absolute left-1/2 top-0 bottom-0 w-px bg-neon-green/30">
+                                </div>
+                            </div>
+                            <div class="w-full max-w-[280px] space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1"><span
+                                            class="text-gray-400 text-[10px] uppercase">Azimuth</span><span id="azVal"
+                                            class="text-white text-sm font-mono">120°</span></div>
+                                    <div
+                                        class="h-6 bg-gray-800 rounded-full relative overflow-hidden border border-gray-700">
+                                        <div
+                                            class="absolute left-[38%] w-[24%] h-full bg-neon-green/15 border-l border-r border-neon-green/50">
+                                        </div>
+                                        <div id="azMk"
+                                            class="absolute top-0 bottom-0 w-1.5 bg-neon-cyan rounded-full transition-all duration-500"
+                                            style="left:20%;box-shadow:0 0 8px #00F0FF"></div>
+                                    </div>
+                                    <p id="azHint" class="text-center text-neon-orange text-xs mt-1">▶ 右轉 15°</p>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between mb-1"><span
+                                            class="text-gray-400 text-[10px] uppercase">Elevation</span><span id="elVal"
+                                            class="text-white text-sm font-mono">30°</span></div>
+                                    <div
+                                        class="h-6 bg-gray-800 rounded-full relative overflow-hidden border border-gray-700">
+                                        <div
+                                            class="absolute left-[43%] w-[14%] h-full bg-neon-green/15 border-l border-r border-neon-green/50">
+                                        </div>
+                                        <div id="elMk"
+                                            class="absolute top-0 bottom-0 w-1.5 bg-neon-cyan rounded-full transition-all duration-500"
+                                            style="left:25%;box-shadow:0 0 8px #00F0FF"></div>
+                                    </div>
+                                    <p id="elHint" class="text-center text-neon-orange text-xs mt-1">▲ 抬高 14°</p>
+                                </div>
+                            </div>
+                            <div id="alignSt" class="text-center opacity-10 transition-all duration-700 mt-4">
+                                <div class="text-4xl text-neon-green mb-1">✓</div>
+                                <p class="text-neon-green text-lg font-bold">ALIGNED</p>
+                            </div>
+                        </div>
+                        <div class="p-5"><button onclick="goVerify()"
+                                class="w-full bg-ios-blue text-white rounded-2xl py-4 font-semibold">Continue to Verify
+                                →</button></div>
+                    </div>
+                </div>
+                <div class="max-w-[360px] space-y-4">
+                    <div class="bg-[rgba(20,30,60,0.6)] glass border border-white/10 rounded-2xl p-6">
+                        <h3
+                            class="text-[12px] uppercase tracking-wider text-neon-cyan mb-3 pb-2 border-b border-white/10">
+                            對齊模擬
+                        </h3>
+                        <div class="flex gap-2 flex-wrap">
+                            <button class="ctrl-btn on px-4 py-2 rounded-lg border border-white/10 text-xs"
+                                onclick="s6plan('far',this)">初始偏移</button>
+                            <button class="ctrl-btn px-4 py-2 rounded-lg border border-white/10 text-xs text-gray-400"
+                                onclick="s6plan('near',this)">接近中</button>
+                            <button class="ctrl-btn px-4 py-2 rounded-lg border border-white/10 text-xs text-gray-400"
+                                onclick="s6plan('aligned',this)">✓ 完美對齊</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 07: Verification -->
+        <div id="p7" class="page hidden fade-in">
+            <div class="px-10 py-8 bg-gradient-to-b from-black/40 to-transparent border-b border-white/10">
+                <h1 class="text-[22px] font-bold mb-1">[Screen 07] 訊號驗證</h1>
+                <p class="text-[#8899BB] text-[13px] leading-relaxed max-w-[800px]">根據對齊情況顯示不同 SNR 結果。</p>
+            </div>
+            <div class="p-10 flex gap-10 justify-center items-start flex-wrap">
+                <div class="phone-frame bg-black rounded-[50px] border-[14px] border-[#1a1a1a] shadow-2xl overflow-hidden"
+                    style="box-shadow:0 60px 120px rgba(0,0,0,.7),inset 0 0 0 2px #333">
+                    <div class="phone-reflection"></div>
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[150px] h-[34px] bg-[#1a1a1a] rounded-b-[22px] z-50">
+                    </div>
+                    <div
+                        class="absolute top-0 left-0 right-0 h-12 px-7 pt-3.5 flex justify-between text-xs font-semibold z-40">
+                        <span>9:43</span><span>📶 🔋</span>
+                    </div>
+                    <div class="h-full w-full flex flex-col relative overflow-hidden screen-inner bg-black">
+                        <div class="px-5 pt-14 pb-3 flex justify-between items-center">
+                            <h2 class="text-white text-xl font-bold">Verification</h2>
+                            <span class="text-gray-400 text-sm font-mono" id="waveTimer">0/15s</span>
+                        </div>
+                        <div class="px-5 mb-4">
+                            <div class="h-48 bg-gray-900 rounded-2xl border border-gray-800 relative overflow-hidden">
+                                <canvas id="waveCanvas" width="340" height="192"></canvas>
+                                <p class="absolute top-2 left-3 text-gray-500 text-[10px]">SNR (dB)</p>
+                                <p class="absolute top-2 right-3 text-neon-green text-[10px]" id="waveSnr">--</p>
+                            </div>
+                        </div>
+                        <div class="px-5 space-y-3 pb-8">
+                            <div id="verifyResult" class="bg-gray-800/90 rounded-2xl p-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-gray-400 text-[10px] uppercase">Current SNR</p>
+                                        <p class="text-neon-green text-2xl font-bold" id="waveCur">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-400 text-[10px] uppercase">Predicted</p>
+                                        <p class="text-gray-400 text-2xl font-bold" id="wavePred">17.8 dB</p>
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex items-center gap-2">
+                                    <div class="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                                        <div id="waveBar" class="h-full bg-neon-cyan rounded-full transition-all"
+                                            style="width:0%"></div>
+                                    </div>
+                                    <span class="text-gray-400 text-[10px]" id="waveBarLbl">0/15s</span>
+                                </div>
+                                <p class="text-xs mt-2" id="waveDev">Waiting...</p>
+                            </div>
+                            <div id="verifyWarn"
+                                class="hidden bg-red-500/15 border border-red-500/40 rounded-2xl p-4 text-center">
+                                <p class="text-red-400 text-3xl mb-2">⚠️</p>
+                                <p class="text-red-400 font-bold text-base mb-1">SNR 偏差過大</p>
+                                <p class="text-gray-400 text-xs mb-3">建議返回 Screen 06 重新對齊</p>
+                            </div>
+                            <div id="verifyActions" class="space-y-2">
+                                <button id="verifyNext"
+                                    class="hidden w-full bg-neon-green text-black rounded-2xl py-4 font-bold"
+                                    onclick="go(8)">✓ 驗證完成 — View Report</button>
+                                <div id="verifyingLabel"
+                                    class="w-full bg-gray-700 text-gray-400 rounded-2xl py-4 font-bold text-center">⏳
+                                    驗證中...</div>
+                                <button id="verifyBack"
+                                    class="hidden w-full border border-neon-orange text-neon-orange rounded-2xl py-3 font-semibold text-sm"
+                                    onclick="go(6)">↩ 返回重新對齊</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-[360px] space-y-4">
+                    <div class="bg-[rgba(20,30,60,0.6)] glass border border-white/10 rounded-2xl p-6">
+                        <h3
+                            class="text-[12px] uppercase tracking-wider text-neon-cyan mb-3 pb-2 border-b border-white/10">
+                            技術說明
+                        </h3>
+                        <div class="text-[13px] text-gray-300 leading-relaxed space-y-2">
+                            <ul class="ml-4 space-y-1 text-xs">
+                                <li><span class="text-neon-green">✓ 對齊良好</span> → SNR ~17 dB</li>
+                                <li><span class="text-yellow-400">△ 接近中</span> → SNR ~14 dB</li>
+                                <li><span class="text-red-400">✗ 偏移大</span> → SNR ~9 dB (警告)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- Screen 08: Report -->
+        <div id="p8" class="page hidden fade-in">
+            <div class="px-10 py-8 bg-gradient-to-b from-black/40 to-transparent border-b border-white/10">
+                <h1 class="text-[22px] font-bold mb-1">[Screen 08] 完成報告</h1>
+                <p class="text-[#8899BB] text-[13px] leading-relaxed max-w-[800px]">安裝報告摘要。</p>
+            </div>
+            <div class="p-10 flex gap-10 justify-center items-start flex-wrap">
+                <div class="phone-frame bg-black rounded-[50px] border-[14px] border-[#1a1a1a] shadow-2xl overflow-hidden"
+                    style="box-shadow:0 60px 120px rgba(0,0,0,.7),inset 0 0 0 2px #333">
+                    <div class="phone-reflection"></div>
+                    <div
+                        class="absolute top-0 left-1/2 -translate-x-1/2 w-[150px] h-[34px] bg-[#1a1a1a] rounded-b-[22px] z-50">
+                    </div>
+                    <div
+                        class="absolute top-0 left-0 right-0 h-12 px-7 pt-3.5 flex justify-between text-xs font-semibold z-40">
+                        <span>9:44</span><span>📶 🔋</span>
+                    </div>
+                    <div class="h-full w-full flex flex-col relative overflow-y-auto screen-inner bg-black">
+                        <div class="px-5 pt-14 pb-3 flex justify-between items-center">
+                            <h2 class="text-white text-xl font-bold">Report</h2>
+                            <span
+                                class="px-3 py-1 bg-neon-green/20 border border-neon-green/40 rounded-full text-neon-green text-xs font-semibold">Complete</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-center px-5 py-4">
+                            <div
+                                class="w-16 h-16 rounded-full bg-neon-green/20 flex items-center justify-center mb-3 float-up">
+                                <span class="text-3xl">✅</span>
+                            </div>
+                            <p class="text-neon-green text-lg font-bold mb-0.5">Installation Complete</p>
+                            <p class="text-gray-400 text-xs"><span class="s1devName">UT-Alpha-12</span> is ready</p>
+                        </div>
+                        <div class="px-4 pb-5 space-y-3">
+                            <!-- Environment Analysis -->
+                            <div class="bg-gray-800/60 glass rounded-2xl p-4 border border-neon-cyan/20">
+                                <p class="text-neon-cyan text-[10px] uppercase font-semibold mb-3 tracking-wider">
+                                    Environment Analysis</p>
+                                <div class="space-y-2.5">
+                                    <div class="flex justify-between items-center border-b border-white/5 pb-2"><span
+                                            class="text-gray-300 text-sm">Blockage Ratio</span><span
+                                            class="text-neon-green font-bold text-sm">12% (Low)</span></div>
+                                    <div class="flex justify-between items-center border-b border-white/5 pb-2"><span
+                                            class="text-gray-300 text-sm">Heatmap Util.</span><span
+                                            class="text-neon-orange font-bold text-sm">High (Peak)</span></div>
+                                    <div class="flex justify-between items-center border-b border-white/5 pb-2"><span
+                                            class="text-gray-300 text-sm">Scan Coverage</span><span
+                                            class="text-white font-bold text-sm">92.5%</span></div>
+                                    <div class="flex justify-between items-center"><span
+                                            class="text-gray-300 text-sm">Obstructions</span><span
+                                            class="text-white font-bold text-sm">2 (Tree, Pole)</span></div>
+                                </div>
+                            </div>
+                            <!-- Signal Quality -->
+                            <div class="bg-gray-800/60 glass rounded-2xl p-4 border border-neon-cyan/20">
+                                <p class="text-neon-cyan text-[10px] uppercase font-semibold mb-3 tracking-wider">Signal
+                                    Quality</p>
+                                <div class="space-y-2.5">
+                                    <div class="flex justify-between items-center border-b border-white/5 pb-2"><span
+                                            class="text-gray-300 text-sm">Final SNR</span><span
+                                            class="text-white font-bold text-xl">17.2 dB</span></div>
+                                    <div class="flex justify-between items-center border-b border-white/5 pb-2"><span
+                                            class="text-gray-300 text-sm">Predicted</span><span
+                                            class="text-gray-400 text-sm">17.8 dB</span></div>
+                                    <div class="flex justify-between items-center"><span
+                                            class="text-gray-300 text-sm">Deviation</span><span
+                                            class="text-neon-green font-bold text-sm">-0.6 dB (Excellent)</span></div>
+                                </div>
+                            </div>
+                            <!-- Golden Pose -->
+                            <div class="bg-gray-800/60 glass rounded-2xl p-4 border border-neon-cyan/20">
+                                <p class="text-neon-cyan text-[10px] uppercase font-semibold mb-3 tracking-wider">Golden
+                                    Pose</p>
+                                <div class="space-y-2.5">
+                                    <div class="flex justify-between items-center border-b border-white/5 pb-2"><span
+                                            class="text-gray-300 text-sm">Azimuth</span><span
+                                            class="text-white font-bold text-sm">135.5°</span></div>
+                                    <div class="flex justify-between items-center"><span
+                                            class="text-gray-300 text-sm">Elevation</span><span
+                                            class="text-white font-bold text-sm">44.0°</span></div>
+                                </div>
+                            </div>
+                            <!-- Actions -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <button class="py-3 border border-gray-700 rounded-2xl text-white text-sm"
+                                    onclick="go(1)">← Home</button>
+                                <button class="py-3 bg-ios-blue rounded-2xl text-white text-sm font-semibold">Export
+                                    PDF</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+    </main>
+
+    <script>
+        var _selectedPlan = 'A';
+        var _alignState = 'far';
+        var _waveRunning = false;
+
+        function go(n) {
+            // Hide all pages first
+            for (var i = 0; i <= 8; i++) {
+                var el = document.getElementById('p' + i);
+                if (el) el.classList.add('hidden');
+            }
+
+            // Show the target page
+            var target = document.getElementById('p' + n);
+            if (target) { target.classList.remove('hidden'); target.classList.add('fade-in'); }
+
+            // Update nav item active state (only for n > 0, as p0 is not a nav item)
+            var navs = document.querySelectorAll('.nav-item');
+            navs.forEach(function (item, idx) {
+                item.classList.remove('active');
+                item.classList.add('text-gray-400');
+                if (n > 0 && idx === n - 1) { // Adjusted condition for nav items
+                    item.classList.add('active');
+                    item.classList.remove('text-gray-400');
+                }
+            });
+
+            // Specific page initializations
+            if (n === 3) drawRadarScan(0);
+            if (n === 4) s4('init');
+            if (n === 6) {
+                var plan = (typeof _planTargets !== 'undefined' && _planTargets[_selectedPlan]) ? _planTargets[_selectedPlan] : { az: 135, el: 44, snr: 17.8 };
+                var tf = document.getElementById('targetFrame');
+                if (tf) { var lbl = tf.querySelector('div:last-child'); if (lbl) lbl.textContent = 'Az:' + plan.az + '° El:' + plan.el + '°'; }
+                s6(plan.az - 15, plan.el - 14);
+            }
+            if (n === 7) startWaveform();
+        }
+
+        // Initial call to go(0) to show the overview screen
+        document.addEventListener('DOMContentLoaded', function () {
+            go(0);
+        });
+
+        function setActive(btn) {
+            if (!btn) return;
+            var siblings = btn.parentElement.querySelectorAll('.ctrl-btn');
+            siblings.forEach(function (b) { b.classList.remove('on'); b.classList.add('text-gray-400'); });
+            btn.classList.add('on'); btn.classList.remove('text-gray-400');
+        }
+
+        function s1(mode, btn) {
+            setActive(btn);
+            var perm = document.getElementById('s1perm'), idle = document.getElementById('s1idle'), ok = document.getElementById('s1ok');
+            if (perm) perm.classList.add('hidden'); if (idle) idle.classList.add('hidden'); if (ok) ok.classList.add('hidden');
+
+            if (mode === 'perm') {
+                perm.classList.remove('hidden');
+            }
+            if (mode === 'idle') {
+                idle.classList.remove('hidden');
+                var radar = document.getElementById('s1radar');
+                var list = document.getElementById('s1devList');
+                var status = document.getElementById('s1status');
+                // Reset state
+                radar.style.transform = 'translateY(0) scale(1)';
+                list.style.transform = 'translateY(100%)';
+                status.textContent = 'Searching for UT devices...';
+                document.getElementById('s1dots').classList.remove('hidden');
+
+                // Simulate search finding devices
+                clearTimeout(window._s1timer);
+                window._s1timer = setTimeout(function () {
+                    radar.style.transform = 'translateY(-140px) scale(0.7)';
+                    list.style.transform = 'translateY(0)';
+                    status.textContent = '';
+                    document.getElementById('s1dots').classList.add('hidden');
+                }, 2000);
+            }
+            if (mode === 'ok') ok.classList.remove('hidden');
+        }
+
+        function s1connect(name) {
+            document.querySelectorAll('.s1devName').forEach(function (el) { el.textContent = name; });
+            var perm = document.getElementById('s1perm'), idle = document.getElementById('s1idle'), ok = document.getElementById('s1ok');
+            if (perm) perm.classList.add('hidden'); if (idle) idle.classList.add('hidden'); if (ok) ok.classList.remove('hidden');
+        }
+
+        function s2(mode, btn) {
+            setActive(btn);
+            var img = document.getElementById('s2heatmap');
+            var lbl = document.getElementById('s2modeLabel');
+            if (mode === 'N') { img.style.transform = 'rotate(0deg)'; lbl.innerHTML = '<p class="text-neon-cyan text-[9px] font-semibold">NORTH UP</p>'; }
+            if (mode === 'H') { img.style.transform = 'rotate(45deg) scale(1.2)'; lbl.innerHTML = '<p class="text-neon-orange text-[9px] font-semibold">HEADING UP</p>'; }
+        }
+
+        /* === Screen 03: Radar Scan with 3-Color Zones === */
+        function drawRadarScan(progress) {
+            var c = document.getElementById('radarScan'); if (!c) return;
+            var ctx = c.getContext('2d'), W = c.width, H = c.height, cx = W / 2, cy = H / 2, R = Math.min(cx, cy) - 8;
+            ctx.clearRect(0, 0, W, H);
+            /* Radar Background = Building (Green) -> Increased Opacity for Clarity */
+            ctx.fillStyle = 'rgba(0,220,80,0.6)'; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = 'rgba(0,200,150,.15)'; ctx.lineWidth = 0.5;
+            for (var i = 1; i <= 4; i++) { ctx.beginPath(); ctx.arc(cx, cy, i * R / 4, 0, Math.PI * 2); ctx.stroke(); }
+            for (var a = 0; a < Math.PI * 2; a += Math.PI / 6) { ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); ctx.stroke(); }
+            if (progress > 0) {
+                var endAngle = -Math.PI / 2 + progress * Math.PI * 2;
+                ctx.save(); ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R * 0.95, -Math.PI / 2, endAngle); ctx.closePath(); ctx.clip();
+                /* Blue sky zones (Overlay) -> Expanded for Low Blockage (88% Sky) */
+                var skyZones = [{ sa: -Math.PI * 0.9, ea: Math.PI * 0.4, ri: 0.15, ro: 0.95 }, { sa: Math.PI * 0.5, ea: Math.PI * 0.9, ri: 0.25, ro: 0.85 }];
+                skyZones.forEach(function (z) {
+                    ctx.fillStyle = 'rgba(60,140,255,0.8)'; ctx.beginPath(); ctx.moveTo(cx, cy);
+                    ctx.arc(cx, cy, R * z.ro, z.sa, z.ea); ctx.lineTo(cx, cy); ctx.fill();
+                    ctx.fillStyle = 'rgba(80,160,255,0.12)'; ctx.beginPath(); ctx.moveTo(cx, cy);
+                    ctx.arc(cx, cy, R * z.ri, z.sa, z.ea); ctx.lineTo(cx, cy); ctx.fill();
+                });
+                /* Red SDTF hotspots */
+                [{ x: cx + R * 0.25, y: cy - R * 0.2, r: R * 0.22 }, { x: cx - R * 0.3, y: cy + R * 0.15, r: R * 0.16 }, { x: cx + R * 0.1, y: cy + R * 0.35, r: R * 0.12 }].forEach(function (h) {
+                    var g = ctx.createRadialGradient(h.x, h.y, 0, h.x, h.y, h.r);
+                    g.addColorStop(0, 'rgba(255,50,0,0.7)'); g.addColorStop(0.6, 'rgba(255,80,0,0.3)'); g.addColorStop(1, 'transparent');
+                    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(h.x, h.y, h.r, 0, Math.PI * 2); ctx.fill();
+                });
+                ctx.restore();
+            }
+            if (progress > 0 && progress < 1) {
+                var sweepAngle = -Math.PI / 2 + progress * Math.PI * 2;
+                var sg = ctx.createLinearGradient(cx, cy, cx + Math.cos(sweepAngle) * R, cy + Math.sin(sweepAngle) * R);
+                sg.addColorStop(0, 'rgba(0,255,157,0.6)'); sg.addColorStop(1, 'rgba(0,255,157,0)');
+                ctx.strokeStyle = sg; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(sweepAngle) * R * 0.95, cy + Math.sin(sweepAngle) * R * 0.95); ctx.stroke();
+            }
+            ctx.strokeStyle = 'rgba(0,200,150,.4)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.font = '8px Inter'; ctx.textAlign = 'center';
+            ['N', 'E', 'S', 'W'].forEach(function (d, i) { var a = -Math.PI / 2 + i * Math.PI / 2; ctx.fillText(d, cx + Math.cos(a) * (R + 6), cy + Math.sin(a) * (R + 6) + 3); });
+        }
+
+        function drawRedCloud() {
+            var c = document.getElementById('redCloudCanvas'); if (!c) return;
+            var ctx = c.getContext('2d'), W = c.width, H = c.height; ctx.clearRect(0, 0, W, H);
+            [{ x: W * 0.3, y: H * 0.25, r: 80 }, { x: W * 0.7, y: H * 0.35, r: 60 }, { x: W * 0.5, y: H * 0.55, r: 70 }].forEach(function (p) {
+                var g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+                g.addColorStop(0, 'rgba(255,50,0,0.6)'); g.addColorStop(0.5, 'rgba(255,100,0,0.3)'); g.addColorStop(1, 'transparent');
+                ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+            });
+        }
+
+        function drawSkyDots() {
+            var c = document.getElementById('skyDotsCanvas'); if (!c) return;
+            var ctx = c.getContext('2d'), W = c.width, H = c.height; ctx.clearRect(0, 0, W, H);
+            for (var i = 0; i < 120; i++) {
+                var x = Math.random() * W, y = Math.random() * H * 0.6;
+                var r = 1 + Math.random() * 2.5;
+                var alpha = 0.3 + Math.random() * 0.5;
+                ctx.fillStyle = 'rgba(100,180,255,' + alpha + ')';
+                ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+            }
+            for (var j = 0; j < 8; j++) {
+                var sx = Math.random() * W, sy = Math.random() * H * 0.5;
+                ctx.fillStyle = 'rgba(150,200,255,0.7)';
+                ctx.beginPath(); ctx.arc(sx, sy, 3, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'rgba(150,200,255,0.15)';
+                ctx.beginPath(); ctx.arc(sx, sy, 8, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        function drawYoloGrid() {
+            var c = document.getElementById('yoloGridCanvas'); if (!c) return;
+            var ctx = c.getContext('2d'), W = c.width, H = c.height; ctx.clearRect(0, 0, W, H);
+            ctx.strokeStyle = 'rgba(0,220,80,0.4)'; ctx.lineWidth = 1.5;
+            var buildings = [
+                { x: 20, y: H * 0.55, w: 80, h: H * 0.3 },
+                { x: W - 110, y: H * 0.5, w: 90, h: H * 0.35 },
+                { x: W * 0.4, y: H * 0.65, w: 60, h: H * 0.2 }
+            ];
+            buildings.forEach(function (b) {
+                ctx.strokeRect(b.x, b.y, b.w, b.h);
+                for (var gx = b.x; gx < b.x + b.w; gx += 12) {
+                    ctx.beginPath(); ctx.moveTo(gx, b.y); ctx.lineTo(gx, b.y + b.h); ctx.stroke();
+                }
+                for (var gy = b.y; gy < b.y + b.h; gy += 12) {
+                    ctx.beginPath(); ctx.moveTo(b.x, gy); ctx.lineTo(b.x + b.w, gy); ctx.stroke();
+                }
+                ctx.fillStyle = 'rgba(0,220,80,0.08)';
+                ctx.fillRect(b.x, b.y, b.w, b.h);
+                ctx.fillStyle = 'rgba(0,220,80,0.7)'; ctx.font = 'bold 9px Inter';
+                ctx.fillText('BLDG', b.x + 4, b.y + 12);
+            });
+        }
+
+        function s3(mode, btn) {
+            if (btn) setActive(btn);
+            var alert = document.getElementById('s3alert'), prog = document.getElementById('s3progress'), pbtn = document.getElementById('s3btn');
+            var azEl = document.getElementById('s3az'), elEl = document.getElementById('s3el');
+            var rScan = document.getElementById('radarScan');
+
+            if (mode === 'idle') {
+                alert.innerHTML = '<p class="text-neon-cyan text-[10px] font-semibold">⏳ Ready</p>';
+                alert.className = 'ml-auto bg-neon-cyan/20 border border-neon-cyan/40 rounded-lg px-2 py-1';
+                prog.classList.add('hidden');
+                pbtn.textContent = 'Start Scan'; pbtn.classList.remove('bg-gray-600', 'text-gray-400', 'bg-neon-green/90', 'text-black');
+                pbtn.classList.add('bg-neon-green/90', 'text-black');
+                pbtn.disabled = false; pbtn.onclick = function () { s3('scan', this); };
+                drawRadarScan(0); clearInterval(window._s3);
+                azEl.textContent = 'AZ: 345°'; elEl.textContent = 'EL: +31°';
+            }
+            if (mode === 'scan') {
+                prog.classList.remove('hidden');
+                alert.innerHTML = '<p class="text-neon-orange text-[10px] font-semibold">🔄 Scanning</p>';
+                alert.className = 'ml-auto bg-orange-500/20 border border-orange-500/40 rounded-lg px-2 py-1';
+
+                // Button state: Scanning... (Gray)
+                pbtn.textContent = 'Scanning...';
+                pbtn.classList.remove('bg-neon-green/90', 'text-black');
+                pbtn.classList.add('bg-gray-600', 'text-gray-400');
+                pbtn.disabled = true;
+
+                var bar = document.getElementById('s3bar'), pv = document.getElementById('s3pctVal'), w = 0;
+                clearInterval(window._s3);
+                window._s3 = setInterval(function () {
+                    w += 0.5; if (w > 100) w = 100; bar.style.width = w + '%'; pv.textContent = Math.round(w) + '%'; drawRadarScan(w / 100);
+                    var az = Math.round(345 + w * 3.6) % 360;
+                    var el = Math.round(31 + Math.sin(w / 100 * Math.PI) * 20);
+                    azEl.textContent = 'AZ: ' + az + '°';
+                    elEl.textContent = 'EL: +' + el + '°';
+                    if (w >= 100) {
+                        clearInterval(window._s3);
+                        // Button state: Complete - Analyze (Green)
+                        pbtn.textContent = '✓ Scan Complete - Analyze →';
+                        pbtn.classList.remove('bg-gray-600', 'text-gray-400');
+                        pbtn.classList.add('bg-neon-green/90', 'text-black');
+                        pbtn.disabled = false;
+                        pbtn.onclick = function () { go(4); };
+
+                        alert.innerHTML = '<p class="text-neon-green text-[10px] font-semibold">✓ Complete</p>';
+                        alert.className = 'ml-auto bg-neon-green/20 border border-neon-green/40 rounded-lg px-2 py-1';
+                    }
+                }, 60);
+            }
+            if (mode === 'done') {
+                clearInterval(window._s3); drawRadarScan(1); prog.classList.remove('hidden');
+                document.getElementById('s3bar').style.width = '100%'; document.getElementById('s3pctVal').textContent = '100%';
+                pbtn.textContent = '✓ Scan Complete - Analyze →';
+                pbtn.onclick = function () { go(4); };
+                alert.innerHTML = '<p class="text-neon-green text-[10px] font-semibold">✓ Complete</p>';
+                alert.className = 'ml-auto bg-neon-green/20 border border-neon-green/40 rounded-lg px-2 py-1';
+            }
+        }
+
+        function s4(mode, btn) {
+            if (btn) setActive(btn);
+            var header = document.getElementById('s4header');
+            var results = document.getElementById('s4results');
+            var log = document.getElementById('s4log'), label = document.getElementById('s4label');
+
+            if (mode === 'init' || mode === 'reset') {
+                if (header) header.classList.remove('hidden');
+                if (results) results.classList.add('hidden');
+                document.getElementById('s4result').classList.add('hidden');
+                document.getElementById('s4next').classList.add('hidden');
+                if (label) label.textContent = 'Awaiting Command...';
+                if (log) log.innerHTML = '<p>&gt; System Ready</p>';
+                ['stg1', 'stg2', 'stg3', 'stg4'].forEach(function (i) { var e = document.getElementById(i); if (e) e.style.background = '#374151'; });
+            }
+            if (mode === 'analyze') {
+                if (header) header.classList.add('hidden');
+                if (results) { results.classList.remove('hidden'); results.classList.add('fade-in'); }
+
+                // Animation Sequence
+                [{ t: 0, label: 'Uploading Blockage Map...', log: '> Uploading scan...', stage: 0, bar: 'stg1', color: '#00F0FF' },
+                { t: 800, label: 'Simulating Heatmap...', log: '> Propagating sats...', stage: 1, bar: 'stg2', color: '#00F0FF' },
+                { t: 1600, label: 'Intersecting...', log: '> Calculating...', stage: 2, bar: 'stg3', color: '#00F0FF' },
+                { t: 2400, label: 'Golden Pose Found!', log: '> DONE → Az:135° El:44°', stage: 3, bar: 'stg4', color: '#FFD700' }
+                ].forEach(function (s) {
+                    setTimeout(function () {
+                        if (label) label.textContent = s.label;
+                        if (log) { log.innerHTML += '<p>' + s.log + '</p>'; log.parentElement.scrollTop = 9999; }
+                        var b = document.getElementById(s.bar); if (b) b.style.background = s.color;
+                        drawAnalysisGlobe(s.stage);
+                        if (s.stage === 3) {
+                            drawAnalysisGlobe(3); // Ensure final stage
+                            document.getElementById('s4result').classList.remove('hidden');
+                            document.getElementById('s4next').classList.remove('hidden');
+                        }
+                    }, s.t);
+                });
+            }
+            if (mode === 'run') {
+                var s = 0; var t = setInterval(function () { s++; drawAnalysisGlobe(s); if (s >= 3) clearInterval(t); }, 800);
+            }
+        }
+
+        /* === Screen 04: Analysis Globe (NO gray blocks) === */
+        function drawAnalysisGlobe(stage) {
+            var c = document.getElementById('analysisGlobe'); if (!c) return;
+            var ctx = c.getContext('2d'), W = c.width, H = c.height, cx = W / 2, cy = H / 2, R = Math.min(cx, cy) - 8;
+            ctx.clearRect(0, 0, W, H);
+            var bg = ctx.createRadialGradient(cx - 15, cy - 15, 0, cx, cy, R);
+            bg.addColorStop(0, 'rgba(20,60,80,.8)'); bg.addColorStop(0.7, 'rgba(10,30,50,.9)'); bg.addColorStop(1, 'rgba(5,15,30,1)');
+            ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = 'rgba(0,240,255,.12)'; ctx.lineWidth = 0.5;
+            for (var i = 1; i <= 8; i++) { ctx.beginPath(); ctx.arc(cx, cy, i * R / 8, 0, Math.PI * 2); ctx.stroke(); }
+            for (var a = 0; a < Math.PI; a += Math.PI / 6) { ctx.beginPath(); ctx.save(); ctx.translate(cx, cy); ctx.scale(Math.cos(a), 1); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.restore(); ctx.stroke(); }
+            ctx.strokeStyle = 'rgba(0,200,150,.4)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
+            if (stage >= 1) {
+                [{ x: cx - 25, y: cy - 10, r: R * 0.4, c: 'rgba(0,200,100,.65)' }, { x: cx + 10, y: cy - 25, r: R * 0.35, c: 'rgba(0,150,255,.55)' }, { x: cx + 30, y: cy + 20, r: R * 0.3, c: 'rgba(255,120,0,.65)' }, { x: cx + 20, y: cy - 10, r: R * 0.2, c: 'rgba(255,50,0,.6)' }].forEach(function (z) {
+                    var g = ctx.createRadialGradient(z.x, z.y, 0, z.x, z.y, z.r); g.addColorStop(0, z.c); g.addColorStop(1, 'transparent');
+                    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+                });
+            }
+            if (stage >= 2) {
+                ctx.strokeStyle = 'rgba(255,200,0,.6)'; ctx.lineWidth = 2.5; ctx.setLineDash([4, 3]);
+                ctx.beginPath(); ctx.ellipse(cx + 15, cy + 5, 38, 28, 0.3, 0, Math.PI * 2); ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.fillStyle = 'rgba(255,200,0,.12)'; ctx.beginPath(); ctx.ellipse(cx + 15, cy + 5, 38, 28, 0.3, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = '9px Inter'; ctx.textAlign = 'center';
+                ctx.fillText('Optimal Zone', cx + 15, cy + 42);
+            }
+            if (stage >= 3) {
+                ctx.fillStyle = '#FFD700'; ctx.shadowColor = '#FFD700'; ctx.shadowBlur = 20;
+                ctx.beginPath(); ctx.arc(cx + 15, cy + 5, 8, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+                ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(cx + 15, cy - 12); ctx.lineTo(cx + 15, cy + 22); ctx.moveTo(cx - 2, cy + 5); ctx.lineTo(cx + 32, cy + 5); ctx.stroke();
+                ctx.fillStyle = '#FFD700'; ctx.font = 'bold 10px Inter'; ctx.textAlign = 'center'; ctx.fillText('GOLDEN POSE', cx + 15, cy - 16);
+                ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.font = '9px Inter'; ctx.fillText('Az:135.5° El:44°', cx + 15, cy + 30);
+            }
+            var hl = ctx.createRadialGradient(cx - 20, cy - 25, 0, cx - 20, cy - 25, 30);
+            hl.addColorStop(0, 'rgba(255,255,255,.12)'); hl.addColorStop(1, 'transparent');
+            ctx.fillStyle = hl; ctx.beginPath(); ctx.arc(cx - 20, cy - 25, 30, 0, Math.PI * 2); ctx.fill();
+        }
+
+
+
+        /* === Screen 05: Plan Selection === */
+        function selectPlan(plan) {
+            _selectedPlan = plan;
+            ['A', 'B', 'C'].forEach(function (p) {
+                var el = document.getElementById('plan' + p);
+                if (p === plan) { el.style.borderColor = p === 'A' ? '#00FF9D' : p === 'B' ? '#FF8800' : '#666'; el.style.boxShadow = p === 'A' ? '0 0 15px rgba(0,255,157,.15)' : '0 0 10px rgba(0,0,0,.1)'; el.style.opacity = '1'; }
+                else { el.style.borderColor = 'rgba(100,100,100,.3)'; el.style.boxShadow = 'none'; el.style.opacity = '0.5'; }
+            });
+        }
+
+        function s5(mode, btn) { setActive(btn); }
+
+        var _planTargets = { A: { az: 135, el: 44, snr: 17.8 }, B: { az: 202, el: 40, snr: 11.2 }, C: { az: 287, el: 30, snr: 8.5 } };
+
+        /* === Screen 06 === */
+        function s6(az, el, btn) {
+            setActive(btn);
+            var plan = _planTargets[_selectedPlan] || _planTargets.A;
+            var tAz = plan.az, tEl = plan.el;
+            var azP = (az - (tAz - 45)) / 90 * 100, elP = el / 90 * 100;
+            document.getElementById('azVal').textContent = az + '°'; document.getElementById('elVal').textContent = el + '°';
+            document.getElementById('azMk').style.left = Math.max(0, Math.min(100, azP)) + '%'; document.getElementById('elMk').style.left = Math.max(0, Math.min(100, elP)) + '%';
+            var af = document.getElementById('antennaFrame');
+            var offX = (az - tAz) / 90 * 100, offY = (tEl - el) / 90 * 100;
+            af.style.left = (50 + offX * 1.5) + '%'; af.style.top = (50 + offY * 1.5) + '%';
+            document.getElementById('antennaCoord').textContent = 'Az:' + az + '° El:' + el + '°';
+            var aligned = Math.abs(az - tAz) < 2 && Math.abs(el - tEl) < 2;
+            var near = Math.abs(az - tAz) < 10 && Math.abs(el - tEl) < 10;
+            _alignState = aligned ? 'aligned' : near ? 'near' : 'far';
+            document.getElementById('alignSt').style.opacity = aligned ? '1' : '0.1';
+            var badge = document.getElementById('alignBadge');
+            if (aligned) { badge.textContent = '✓ Aligned'; badge.className = 'px-3 py-1 bg-neon-green/20 border border-neon-green/40 rounded-full text-neon-green text-xs font-semibold'; }
+            else if (near) { badge.textContent = 'Almost...'; badge.className = 'px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-full text-yellow-400 text-xs font-semibold'; }
+            else { badge.textContent = 'Adjusting'; badge.className = 'px-3 py-1 bg-neon-orange/20 border border-neon-orange/40 rounded-full text-neon-orange text-xs font-semibold'; }
+            var gh = document.getElementById('alignGuideH'), gv = document.getElementById('alignGuideV');
+            if (Math.abs(el - tEl) < 8) gh.classList.remove('hidden'); else gh.classList.add('hidden');
+            if (Math.abs(az - tAz) < 8) gv.classList.remove('hidden'); else gv.classList.add('hidden');
+            if (aligned) {
+                document.getElementById('azMk').style.background = '#FFD700'; document.getElementById('azMk').style.boxShadow = '0 0 12px #FFD700';
+                document.getElementById('elMk').style.background = '#FFD700'; document.getElementById('elMk').style.boxShadow = '0 0 12px #FFD700';
+                document.getElementById('azHint').innerHTML = '<span class="text-neon-green">✓ Aligned</span>';
+                document.getElementById('elHint').innerHTML = '<span class="text-neon-green">✓ Aligned</span>';
+                af.querySelector('div').style.borderColor = '#FFD700'; af.querySelector('div').style.background = 'rgba(255,215,0,.15)'; af.querySelector('div').style.boxShadow = '0 0 20px rgba(255,215,0,.4)';
+            } else {
+                document.getElementById('azMk').style.background = '#00F0FF'; document.getElementById('azMk').style.boxShadow = '0 0 8px #00F0FF';
+                document.getElementById('elMk').style.background = '#00F0FF'; document.getElementById('elMk').style.boxShadow = '0 0 8px #00F0FF';
+                document.getElementById('azHint').textContent = az < tAz ? '▶ 右轉 ' + (tAz - az) + '°' : '◀ 左轉 ' + (az - tAz) + '°';
+                document.getElementById('elHint').textContent = el < tEl ? '▲ 抬高 ' + (tEl - el) + '°' : '▼ 降低 ' + (el - tEl) + '°';
+                af.querySelector('div').style.borderColor = '#00F0FF'; af.querySelector('div').style.background = 'rgba(0,240,255,.1)'; af.querySelector('div').style.boxShadow = '0 0 12px rgba(0,240,255,.3)';
+            }
+        }
+
+        function s6plan(state, btn) {
+            var plan = _planTargets[_selectedPlan] || _planTargets.A;
+            if (state === 'far') s6(plan.az - 15, plan.el - 14, btn);
+            else if (state === 'near') s6(plan.az - 5, plan.el - 4, btn);
+            else s6(plan.az, plan.el, btn);
+        }
+
+        /* === Screen 06→07 bridge === */
+        function goVerify() { go(7); }
+
+        /* === Screen 07: Conditional SNR === */
+        function startWaveform() {
+            _waveRunning = false;
+            var c = document.getElementById('waveCanvas'); if (!c) return;
+            var ctx = c.getContext('2d'), W = c.width, H = c.height;
+            var snrConfig = { aligned: { base: 17.2, noise: 0.4, pred: 17.8, pass: true }, near: { base: 14.0, noise: 0.8, pred: 17.8, pass: false }, far: { base: 9.2, noise: 1.2, pred: 17.8, pass: false } };
+            var cfg = snrConfig[_alignState] || snrConfig.far;
+            document.getElementById('wavePred').textContent = cfg.pred + ' dB';
+            document.getElementById('verifyWarn').classList.add('hidden');
+            document.getElementById('verifyBack').classList.add('hidden');
+            document.getElementById('verifyNext').classList.add('hidden');
+            document.getElementById('verifyingLabel').classList.remove('hidden');
+            document.getElementById('verifyResult').style.borderColor = 'transparent';
+            var vals = []; for (var i = 0; i < 15; i++)vals.push(null);
+            var elapsed = 0, lastTime = 0;
+            function mapY(v) { return H - (v - 5) * ((H - 20) / 20); }
+            function loop(ts) {
+                if (!lastTime) lastTime = ts;
+                var dt = ts - lastTime;
+                if (dt >= 1000 && elapsed < 15) {
+                    lastTime = ts; elapsed++;
+                    var snr = cfg.base + Math.random() * cfg.noise - cfg.noise / 2;
+                    vals[elapsed - 1] = snr;
+                    var cur = snr.toFixed(1);
+                    document.getElementById('waveCur').textContent = cur + ' dB';
+                    document.getElementById('waveSnr').textContent = cur + ' dB';
+                    document.getElementById('waveTimer').textContent = elapsed + '/15s';
+                    document.getElementById('waveBarLbl').textContent = elapsed + '/15s';
+                    document.getElementById('waveBar').style.width = (elapsed / 15 * 100) + '%';
+                    var dev = (snr - cfg.pred).toFixed(1); var devAbs = Math.abs(parseFloat(dev));
+                    var devEl = document.getElementById('waveDev');
+                    if (devAbs < 1) { devEl.textContent = 'Deviation: ' + dev + ' dB (Excellent)'; devEl.style.color = '#00FF9D'; }
+                    else if (devAbs < 3) { devEl.textContent = 'Deviation: ' + dev + ' dB (Acceptable)'; devEl.style.color = '#FFCC00'; }
+                    else { devEl.textContent = 'Deviation: ' + dev + ' dB (⚠ Too High)'; devEl.style.color = '#FF3355'; }
+                }
+                ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, W, H);
+                ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth = 0.5;
+                for (var y = 0; y < H; y += 24) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+                for (var x = 0; x < W; x += 24) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+                ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.font = '8px Inter'; ctx.textAlign = 'left';
+                for (var db = 8; db <= 20; db += 4) { ctx.fillText(db + ' dB', 2, mapY(db) + 3); }
+                var predY = mapY(cfg.pred);
+                ctx.beginPath(); ctx.strokeStyle = 'rgba(0,122,255,.35)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+                ctx.moveTo(0, predY); ctx.lineTo(W, predY); ctx.stroke(); ctx.setLineDash([]);
+                ctx.fillStyle = 'rgba(0,122,255,.5)'; ctx.font = '8px Inter'; ctx.textAlign = 'right'; ctx.fillText('Pred ' + cfg.pred, W - 2, predY - 3);
+                var lineColor = cfg.pass ? '#00FF9D' : '#FF8800';
+                ctx.beginPath(); ctx.strokeStyle = lineColor; ctx.lineWidth = 2;
+                var started = false;
+                for (var i = 0; i < 15; i++) { if (vals[i] === null) continue; var px = i * (W / 14), py = mapY(vals[i]); if (!started) { ctx.moveTo(px, py); started = true; } else { ctx.lineTo(px, py); } } ctx.stroke();
+                ctx.beginPath(); ctx.strokeStyle = lineColor.replace(')', ',0.15)').replace('rgb', 'rgba'); ctx.lineWidth = 6;
+                started = false;
+                for (var i = 0; i < 15; i++) { if (vals[i] === null) continue; var px = i * (W / 14), py = mapY(vals[i]); if (!started) { ctx.moveTo(px, py); started = true; } else { ctx.lineTo(px, py); } } ctx.stroke();
+                if (elapsed > 0 && vals[elapsed - 1] !== null) {
+                    var lx = (elapsed - 1) * (W / 14), ly = mapY(vals[elapsed - 1]);
+                    ctx.fillStyle = lineColor; ctx.shadowColor = lineColor; ctx.shadowBlur = 10;
+                    ctx.beginPath(); ctx.arc(lx, ly, 4, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+                }
+                if (elapsed >= 15) {
+                    document.getElementById('verifyingLabel').classList.add('hidden');
+                    if (!cfg.pass) {
+                        document.getElementById('verifyWarn').classList.remove('hidden');
+                        document.getElementById('verifyBack').classList.remove('hidden');
+                        document.getElementById('verifyNext').classList.add('hidden');
+                        document.getElementById('verifyResult').style.borderColor = 'rgba(255,51,85,.3)';
+                    } else {
+                        document.getElementById('verifyNext').classList.remove('hidden');
+                        document.getElementById('verifyResult').style.borderColor = 'rgba(0,255,157,.3)';
+                    }
+                    return;
+                }
+                requestAnimationFrame(loop);
+            }
+            requestAnimationFrame(loop);
+        }
+
+        /* === Init === */
+        (function () { go(0); drawRadarScan(0); drawAnalysisGlobe(0); drawRedCloud(); drawSkyDots(); drawYoloGrid(); s1('perm'); })();
+    </script>
+</body>
+
+</html>
